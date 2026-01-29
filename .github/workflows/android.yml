@@ -14,7 +14,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Unzip project
-        run: unzip TapHunterFullProject.zip -d project
+        run: |
+          unzip TapHunterFullProject.zip -d project
+          echo "===== CONTENIDO DE PROJECT ====="
+          ls -la project
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
