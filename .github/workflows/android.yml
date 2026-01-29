@@ -1,4 +1,4 @@
-name: Build Android AAB
+name: Build Signed Android AAB
 
 on:
   push:
@@ -9,8 +9,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
     - name: Unzip project
       run: unzip TapHunterGame.zip -d project
@@ -21,14 +20,29 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Build AAB
+    - name: Generate keystore
+      run: |
+        keytool -genkeypair \
+        -alias ${{ secrets.KEY_ALIAS }} \
+        -keyalg RSA \
+        -keysize 2048 \
+        -validity 10000 \
+        -keystore keystore.jks \
+        -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
+        -keypass ${{ secrets.KEY_PASSWORD }} \
+        -dname "CN=TapHunter, OU=Dev, O=TapHunter, L=AR, S=AR, C=AR"
+
+    - name: Encode keystore
+      run: base64 keystore.jks > keystore.txt
+
+    - name: Upload keystore
+      uses: actions/upload-artifact@v4
+      with:
+        name: keystore
+        path: keystore.txt
+
+    - name: Build unsigned AAB
       working-directory: project
       run: |
         chmod +x ./gradlew
         ./gradlew bundleRelease
-
-    - name: Upload AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: project/app/build/outputs/bundle/release/app-release.aab
