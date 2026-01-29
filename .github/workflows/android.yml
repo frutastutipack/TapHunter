@@ -1,14 +1,9 @@
-- name: Build AAB
-        working-directory: project
-        run: |
-          chmod +x gradlew
-          ./gradlew bundleRelease
-          echo "===== BUSCANDO AAB ====="
-          find . -name "*.aab"
+name: Android Build AAB
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   build:
@@ -21,17 +16,14 @@ jobs:
       - name: Unzip project
         run: unzip TapHunterFullProject.zip -d project
 
-      - name: Set up JDK
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
-          java-version: '17'
+          distribution: temurin
+          java-version: 17
 
-      - name: Setup Android SDK
+      - name: Set up Android SDK
         uses: android-actions/setup-android@v3
-
-      - name: Grant execute permission
-        run: chmod +x project/gradlew
 
       - name: Build Release AAB
         working-directory: project
