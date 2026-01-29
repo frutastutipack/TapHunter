@@ -1,4 +1,10 @@
-name: Build Android AAB
+- name: Build AAB
+        working-directory: project
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease
+          echo "===== BUSCANDO AAB ====="
+          find . -name "*.aab"
 
 on:
   push:
