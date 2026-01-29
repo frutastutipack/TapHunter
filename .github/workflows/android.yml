@@ -26,7 +26,7 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Build Release AAB
-        working-directory: project
+        working-directory: project/TapHunterFullProject
         run: |
           chmod +x gradlew
           ./gradlew bundleRelease
