@@ -35,7 +35,11 @@ jobs:
 
       - name: Build Release AAB
         working-directory: project
-        run: ./gradlew bundleRelease
+        run: |
+          chmod +x gradlew
+          ./gradlew bundleRelease
+          echo "===== BUSCANDO AAB ====="
+          find . -name "*.aab"
 
       - name: Upload AAB
         uses: actions/upload-artifact@v4
