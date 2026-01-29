@@ -1,4 +1,4 @@
-name: Build Signed Android AAB
+name: Build Android AAB
 
 on:
   push:
@@ -9,45 +9,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-    - name: Unzip project
-      run: unzip TapHunterFullProject.zip -d project
+      - name: Unzip project
+        run: unzip TapHunterFullProject.zip -d project
 
-    - name: Set up JDK
-      uses: actions/setup-java@v4
-      with:
-        distribution: 'temurin'
-        java-version: '17'
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-    - name: Generate keystore
-      run: |
-        keytool -genkeypair \
-        -alias ${{ secrets.KEY_ALIAS }} \
-        -keyalg RSA \
-        -keysize 2048 \
-        -validity 10000 \
-        -keystore keystore.jks \
-        -storepass ${{ secrets.KEYSTORE_PASSWORD }} \
-        -keypass ${{ secrets.KEY_PASSWORD }} \
-        -dname "CN=TapHunter, OU=Dev, O=TapHunter, L=AR, S=AR, C=AR"
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
 
-    - name: Encode keystore
-      run: base64 keystore.jks > keystore.txt
+      - name: Grant execute permission
+        run: chmod +x project/gradlew
 
-    - name: Upload keystore
-      uses: actions/upload-artifact@v4
-      with:
-        name: keystore
-        path: keystore.txt
+      - name: Build Release AAB
+        working-directory: project
+        run: ./gradlew bundleRelease
 
-    - name: Build unsigned AAB
-      working-directory: project
-      run: |
-        chmod +x ./gradlew
-        ./gradlew bundleRelease
-        - name: Upload AAB
-      uses: actions/upload-artifact@v4
-      with:
-        name: app-release
-        path: project/app/build/outputs/bundle/release/app-release.aab
+      - name: Upload AAB
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: project/app/build/outputs/bundle/release/app-release.aab
